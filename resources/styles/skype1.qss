@@ -1,0 +1,323 @@
+/* Skype 1.x (2003) - Authentic Windows 2000/XP Native Style */
+/* Raw, utilitarian, boxy. No polish. Just controls. */
+
+* {
+    font-family: "Tahoma", "Sans Serif";
+    font-size: 11px;
+}
+
+/* Everything gets the system gray */
+QWidget {
+    background-color: #D4D0C8;
+}
+
+QMainWindow {
+    background-color: #D4D0C8;
+}
+
+/* Menu bar - flat, tight, no padding */
+QMenuBar {
+    background-color: #D4D0C8;
+    border-bottom: 1px solid #808080;
+    padding: 0px;
+    spacing: 0px;
+}
+
+QMenuBar::item {
+    padding: 2px 5px;
+    background: transparent;
+}
+
+QMenuBar::item:selected {
+    background-color: #0A246A;
+    color: white;
+}
+
+QMenu {
+    background-color: #D4D0C8;
+    border: 2px outset #D4D0C8;
+    padding: 1px;
+}
+
+QMenu::item {
+    padding: 2px 20px 2px 22px;
+    background: transparent;
+}
+
+QMenu::item:selected {
+    background-color: #0A246A;
+    color: white;
+}
+
+QMenu::separator {
+    height: 1px;
+    background: #808080;
+    margin: 1px 2px;
+}
+
+/* Tab widget - hard 3D raised tabs */
+QTabWidget::pane {
+    border: 2px inset #D4D0C8;
+    background-color: #D4D0C8;
+    top: -2px;
+}
+
+QTabBar::tab {
+    background-color: #D4D0C8;
+    border: 2px outset #D4D0C8;
+    border-bottom: none;
+    padding: 3px 10px;
+    margin-right: 1px;
+    min-width: 55px;
+}
+
+QTabBar::tab:selected {
+    background-color: #D4D0C8;
+    border-bottom: 2px solid #D4D0C8;
+    margin-bottom: -2px;
+    padding-bottom: 5px;
+}
+
+QTabBar::tab:!selected {
+    margin-top: 2px;
+    background-color: #C0BDB5;
+}
+
+/* Toolbar - flat gray bar */
+QToolBar {
+    background-color: #D4D0C8;
+    border-bottom: 1px solid #808080;
+    spacing: 1px;
+    padding: 1px 2px;
+}
+
+QToolButton {
+    background: transparent;
+    border: none;
+    padding: 2px 4px;
+}
+
+QToolButton:hover {
+    border: 1px outset #D4D0C8;
+}
+
+QToolButton:pressed {
+    border: 1px inset #D4D0C8;
+}
+
+/* Scroll bars - chunky win2k style */
+QScrollBar:vertical {
+    background: #D4D0C8;
+    width: 16px;
+    margin: 16px 0 16px 0;
+    border: 1px solid #808080;
+}
+
+QScrollBar::handle:vertical {
+    background: #D4D0C8;
+    border: 2px outset #D4D0C8;
+    min-height: 16px;
+}
+
+QScrollBar::sub-line:vertical {
+    background: #D4D0C8;
+    border: 2px outset #D4D0C8;
+    height: 15px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::add-line:vertical {
+    background: #D4D0C8;
+    border: 2px outset #D4D0C8;
+    height: 15px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::up-arrow:vertical {
+    width: 7px;
+    height: 4px;
+    background: none;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 4px solid #000000;
+}
+
+QScrollBar::down-arrow:vertical {
+    width: 7px;
+    height: 4px;
+    background: none;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid #000000;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: #D4D0C8;
+}
+
+QScrollBar:horizontal {
+    background: #D4D0C8;
+    height: 16px;
+    margin: 0 16px 0 16px;
+    border: 1px solid #808080;
+}
+
+QScrollBar::handle:horizontal {
+    background: #D4D0C8;
+    border: 2px outset #D4D0C8;
+    min-width: 16px;
+}
+
+QScrollBar::sub-line:horizontal {
+    background: #D4D0C8;
+    border: 2px outset #D4D0C8;
+    width: 15px;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::add-line:horizontal {
+    background: #D4D0C8;
+    border: 2px outset #D4D0C8;
+    width: 15px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::left-arrow:horizontal {
+    width: 4px;
+    height: 7px;
+    background: none;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    border-right: 4px solid #000000;
+}
+
+QScrollBar::right-arrow:horizontal {
+    width: 4px;
+    height: 7px;
+    background: none;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    border-left: 4px solid #000000;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: #D4D0C8;
+}
+
+/* Status bar */
+QStatusBar {
+    background-color: #D4D0C8;
+    border-top: 1px solid #808080;
+    font-size: 11px;
+}
+
+/* Input fields - hard sunken border */
+QLineEdit {
+    border: 2px inset #D4D0C8;
+    padding: 1px 2px;
+    background: white;
+    selection-background-color: #0A246A;
+    selection-color: white;
+}
+
+/* Buttons - classic 3D raised look */
+QPushButton {
+    background-color: #D4D0C8;
+    border: 2px outset #D4D0C8;
+    padding: 2px 12px;
+    min-height: 16px;
+}
+
+QPushButton:hover {
+    background-color: #D4D0C8;
+}
+
+QPushButton:pressed {
+    border: 2px inset #D4D0C8;
+}
+
+QPushButton:default {
+    border: 2px outset #D4D0C8;
+    outline: 1px dotted #000000;
+    outline-offset: -4px;
+}
+
+/* Text browser (chat history) */
+QTextBrowser {
+    background-color: white;
+    border: 2px inset #D4D0C8;
+}
+
+/* Text edit (chat input) */
+QTextEdit {
+    background-color: white;
+    border: 2px inset #D4D0C8;
+    selection-background-color: #0A246A;
+    selection-color: white;
+}
+
+/* List widget */
+QListWidget {
+    background-color: white;
+    border: 2px inset #D4D0C8;
+}
+
+QListWidget::item {
+    padding: 1px 2px;
+}
+
+QListWidget::item:selected {
+    background-color: #0A246A;
+    color: white;
+}
+
+QListWidget::item:hover:!selected {
+    background-color: #D4D0C8;
+}
+
+/* Combo box - classic dropdown */
+QComboBox {
+    border: 2px inset #D4D0C8;
+    padding: 1px 2px;
+    background: white;
+}
+
+QComboBox::drop-down {
+    border-left: 1px solid #808080;
+    width: 16px;
+    background: #D4D0C8;
+    border: 2px outset #D4D0C8;
+}
+
+QComboBox QAbstractItemView {
+    background: white;
+    border: 1px solid #808080;
+    selection-background-color: #0A246A;
+    selection-color: white;
+}
+
+/* Splitter */
+QSplitter::handle {
+    background-color: #D4D0C8;
+    height: 4px;
+}
+
+/* Group headers in contact list */
+QLabel#groupHeader {
+    font-weight: bold;
+    color: #000000;
+    padding: 3px 4px 1px 4px;
+    font-size: 11px;
+    background-color: #D4D0C8;
+    border-bottom: 1px solid #808080;
+}
+
+/* Scroll area backgrounds should be white for contact list */
+QScrollArea {
+    background-color: white;
+    border: none;
+}

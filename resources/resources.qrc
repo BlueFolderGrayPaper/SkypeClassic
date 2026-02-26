@@ -1,0 +1,51 @@
+<RCC>
+    <qresource prefix="/sounds">
+        <file alias="BUSY.WAV">../Sounds/BUSY.WAV</file>
+        <file alias="CALL_ERROR1.WAV">../Sounds/CALL_ERROR1.WAV</file>
+        <file alias="CALL_ERROR2.WAV">../Sounds/CALL_ERROR2.WAV</file>
+        <file alias="CALL_INIT.WAV">../Sounds/CALL_INIT.WAV</file>
+        <file alias="CALL_IN.WAV">../Sounds/CALL_IN.WAV</file>
+        <file alias="CALL_OUT.WAV">../Sounds/CALL_OUT.WAV</file>
+        <file alias="CALL_RECONNECT_CONTINUOUS.WAV">../Sounds/CALL_RECONNECT_CONTINUOUS.WAV</file>
+        <file alias="CALL_RECONNECT_FRONT.WAV">../Sounds/CALL_RECONNECT_FRONT.WAV</file>
+        <file alias="FORWARDED.WAV">../Sounds/FORWARDED.WAV</file>
+        <file alias="FT_COMPLETE.WAV">../Sounds/FT_COMPLETE.WAV</file>
+        <file alias="FT_FAILED.WAV">../Sounds/FT_FAILED.WAV</file>
+        <file alias="HANGUP.WAV">../Sounds/HANGUP.WAV</file>
+        <file alias="HOLD.WAV">../Sounds/HOLD.WAV</file>
+        <file alias="IM_ACC.WAV">../Sounds/IM_ACC.WAV</file>
+        <file alias="IM_SENT.WAV">../Sounds/IM_SENT.WAV</file>
+        <file alias="IM.WAV">../Sounds/IM.WAV</file>
+        <file alias="INCOMING_AUTH.WAV">../Sounds/INCOMING_AUTH.WAV</file>
+        <file alias="INCOMING_CONTACTS.WAV">../Sounds/INCOMING_CONTACTS.WAV</file>
+        <file alias="INCOMING_FILE.WAV">../Sounds/INCOMING_FILE.WAV</file>
+        <file alias="INCOMING_VOICEMAIL.WAV">../Sounds/INCOMING_VOICEMAIL.WAV</file>
+        <file alias="KNOCKING.WAV">../Sounds/KNOCKING.WAV</file>
+        <file alias="LOGIN.WAV">../Sounds/LOGIN.WAV</file>
+        <file alias="LOGOUT.WAV">../Sounds/LOGOUT.WAV</file>
+        <file alias="OFFLINE.WAV">../Sounds/OFFLINE.WAV</file>
+        <file alias="OLD_BUSY.WAV">../Sounds/OLD_BUSY.WAV</file>
+        <file alias="OLD_CALL_INIT.WAV">../Sounds/OLD_CALL_INIT.WAV</file>
+        <file alias="OLD_CALL_IN.WAV">../Sounds/OLD_CALL_IN.WAV</file>
+        <file alias="OLD_CALL_OUT.WAV">../Sounds/OLD_CALL_OUT.WAV</file>
+        <file alias="OLD_HANGUP.WAV">../Sounds/OLD_HANGUP.WAV</file>
+        <file alias="OLD_HOLD.WAV">../Sounds/OLD_HOLD.WAV</file>
+        <file alias="OLD_IM.WAV">../Sounds/OLD_IM.WAV</file>
+        <file alias="OLD_ONLINE.WAV">../Sounds/OLD_ONLINE.WAV</file>
+        <file alias="OLD_RESUME.WAV">../Sounds/OLD_RESUME.WAV</file>
+        <file alias="ONLINE.WAV">../Sounds/ONLINE.WAV</file>
+        <file alias="RESUME.WAV">../Sounds/RESUME.WAV</file>
+        <file alias="SEND_VM.WAV">../Sounds/SEND_VM.WAV</file>
+        <file alias="USER_ADDED.WAV">../Sounds/USER_ADDED.WAV</file>
+        <file alias="USER_LEFT_ORG.WAV">../Sounds/USER_LEFT_ORG.WAV</file>
+        <file alias="USER_LEFT.WAV">../Sounds/USER_LEFT.WAV</file>
+        <file alias="VC_BEEP_1.WAV">../Sounds/VC_BEEP_1.WAV</file>
+    </qresource>
+    <qresource prefix="/styles">
+        <file alias="skype1.qss">styles/skype1.qss</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="skype_logo.svg">icons/skype_logo.svg</file>
+        <file alias="skype_icon.svg">icons/skype_icon.svg</file>
+    </qresource>
+</RCC>
