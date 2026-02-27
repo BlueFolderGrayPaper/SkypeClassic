@@ -222,11 +222,15 @@ void SkypeApp::onLoginRequested(const QString& username) {
 }
 
 void SkypeApp::startP2PMode() {
+    // Set m_p2pMode BEFORE start() because start() emits loginResult
+    // synchronously, which triggers showMainWindow() — which checks m_p2pMode
+    // for the status bar message.
+    m_p2pMode = true;
     if (m_lanService->start(m_username)) {
-        m_p2pMode = true;
         // loginResult signal will fire from LANPeerService,
         // triggering onServerLoginResult -> showMainWindow
     } else {
+        m_p2pMode = false;
         // P2P failed, fall back to offline mock mode
         qDebug() << "P2P failed, starting in offline mode";
         m_contacts = Contact::createMockContacts();

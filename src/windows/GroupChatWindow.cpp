@@ -41,15 +41,16 @@ GroupChatWindow::~GroupChatWindow() {
 
 void GroupChatWindow::setupUi() {
     auto* mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(4, 4, 4, 4);
-    mainLayout->setSpacing(4);
+    mainLayout->setContentsMargins(2, 2, 2, 2);
+    mainLayout->setSpacing(2);
 
     // Header
     auto* headerLabel = new QLabel(m_group.groupName, this);
     QFont hf = headerLabel->font();
     hf.setBold(true);
-    hf.setPixelSize(13);
+    hf.setPixelSize(12);
     headerLabel->setFont(hf);
+    headerLabel->setContentsMargins(2, 1, 2, 1);
     mainLayout->addWidget(headerLabel);
 
     // Content: chat + member list
@@ -106,10 +107,13 @@ void GroupChatWindow::setupUi() {
     mhf.setBold(true);
     mhf.setPixelSize(11);
     memberHeader->setFont(mhf);
+    memberHeader->setContentsMargins(2, 1, 2, 1);
     memberLayout->addWidget(memberHeader);
 
     m_memberList = new QListWidget(memberWidget);
-    m_memberList->setMaximumWidth(140);
+    m_memberList->setMinimumWidth(120);
+    m_memberList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_memberList->setWordWrap(true);
     rebuildMemberList();
     memberLayout->addWidget(m_memberList);
 
@@ -126,6 +130,7 @@ void GroupChatWindow::setupUi() {
     splitter->addWidget(memberWidget);
     splitter->setStretchFactor(0, 3);
     splitter->setStretchFactor(1, 1);
+    splitter->setSizes({320, 130});
 
     mainLayout->addWidget(splitter);
 }

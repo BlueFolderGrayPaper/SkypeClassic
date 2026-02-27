@@ -40,6 +40,9 @@ MainWindow::MainWindow(const QString& username, QWidget* parent)
 }
 
 void MainWindow::setupMenuBar() {
+    // Keep the menu bar inside the window on macOS (don't use native global menu)
+    menuBar()->setNativeMenuBar(false);
+
     // File
     auto* fileMenu = menuBar()->addMenu("&File");
     fileMenu->addAction("&My Profile...", [this]() { showAccountDialog(); });

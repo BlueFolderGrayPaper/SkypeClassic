@@ -36,15 +36,17 @@ bool LANPeerService::start(const QString& username, quint16 discoveryPort) {
     if (!m_discoverySocket->bind(QHostAddress::AnyIPv4, m_discoveryPort,
                                   QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
         qWarning() << "Failed to bind UDP discovery port" << m_discoveryPort
-                    << m_discoverySocket->errorString();
+                    << m_discoverySocket->errorString()
+                    << "- continuing without UDP discovery";
         delete m_discoverySocket;
         m_discoverySocket = nullptr;
-        return false;
+        // Don't return false — WebSocket server can still work
+    } else {
+        // Join multicast group so discovery works across subnets
+        m_discoverySocket->joinMulticastGroup(QHostAddress("239.77.83.75"));
+        connect(m_discoverySocket, &QUdpSocket::readyRead,
+                this, &LANPeerService::onDiscoveryReadyRead);
     }
-    // Join multicast group so discovery works across subnets
-    m_discoverySocket->joinMulticastGroup(QHostAddress("239.77.83.75"));
-    connect(m_discoverySocket, &QUdpSocket::readyRead,
-            this, &LANPeerService::onDiscoveryReadyRead);
 
     // Start WebSocket server on random port
     m_wsServer = new QWebSocketServer("SkypeP2P", QWebSocketServer::NonSecureMode, this);
@@ -204,6 +206,11 @@ void LANPeerService::handleDiscoveryPacket(const QByteArray& data, const QHostAd
         m_peers.insert(username, info);
         statusChanged = true;
         qDebug() << "Discovered peer:" << username << "at" << normalizedSender.toString() << ":" << wsPort;
+
+        // Proactively connect so the peer gets our identify message
+        // (handles one-directional multicast — they discover us even if
+        //  our multicast doesn't reach them)
+        getOrCreateConnection(username);
     } else {
         PeerInfo& info = m_peers[username];
         if (info.status != status) {
@@ -301,14 +308,48 @@ void LANPeerService::onPeerTextMessage(const QString& message) {
                 socket->close(QWebSocketProtocol::CloseCodePolicyViolated, "Empty username");
                 return;
             }
-            // Accept the identity — IP verification is too strict on LAN
-            // (loopback, IPv4-mapped IPv6, multi-homed hosts all cause mismatches)
+            m_socketToUsername[socket] = username;
+
             if (m_peers.contains(username)) {
+                // Update lastSeen so they don't time out
+                m_peers[username].lastSeen = QDateTime::currentMSecsSinceEpoch();
                 qDebug() << "Peer identified:" << username;
             } else {
-                qDebug() << "Peer identified (not yet discovered via UDP):" << username;
+                // Auto-register peer from WebSocket connection
+                // (handles case where multicast didn't reach us)
+                QHostAddress peerAddr = socket->peerAddress();
+                bool ok;
+                quint32 ipv4 = peerAddr.toIPv4Address(&ok);
+                if (ok) peerAddr = QHostAddress(ipv4);
+
+                PeerInfo info;
+                info.username = username;
+                info.status = obj["status"].toString("Online");
+                info.skypeNumber = obj["skypeNumber"].toString();
+                info.address = peerAddr;
+                info.wsPort = static_cast<quint16>(obj["wsPort"].toInt());
+                info.lastSeen = QDateTime::currentMSecsSinceEpoch();
+                m_peers.insert(username, info);
+
+                qDebug() << "Peer auto-registered from WebSocket:" << username
+                         << "at" << peerAddr.toString() << ":" << info.wsPort;
+
+                emit presenceChanged(username, info.status);
+                emitContactList();
             }
-            m_socketToUsername[socket] = username;
+
+            // Send our own identify back so the other side maps this socket too
+            // (enables bidirectional messaging on a single connection)
+            if (!obj.contains("reply")) {
+                QJsonObject reply;
+                reply["type"] = "identify";
+                reply["username"] = m_username;
+                reply["wsPort"] = static_cast<int>(m_wsListenPort);
+                reply["status"] = m_status;
+                reply["skypeNumber"] = m_skypeNumber;
+                reply["reply"] = true;  // prevent infinite ping-pong
+                socket->sendTextMessage(QJsonDocument(reply).toJson(QJsonDocument::Compact));
+            }
         }
     } else {
         // For all other message types, verify sender matches socket identity
@@ -320,6 +361,11 @@ void LANPeerService::onPeerTextMessage(const QString& message) {
                            << "but socket identified as" << m_socketToUsername[socket];
                 return;
             }
+        }
+
+        // Update lastSeen so active peers don't time out
+        if (!claimedFrom.isEmpty() && m_peers.contains(claimedFrom)) {
+            m_peers[claimedFrom].lastSeen = QDateTime::currentMSecsSinceEpoch();
         }
 
         // Rate limiting
@@ -420,7 +466,7 @@ void LANPeerService::onPeerDisconnected() {
 // === Outgoing connections + messaging ===
 
 QWebSocket* LANPeerService::getOrCreateConnection(const QString& peerUsername) {
-    // Reuse existing connection if open
+    // Reuse existing outgoing connection if open
     if (m_outgoingConnections.contains(peerUsername)) {
         QWebSocket* ws = m_outgoingConnections[peerUsername];
         if (ws->state() == QAbstractSocket::ConnectedState ||
@@ -432,16 +478,26 @@ QWebSocket* LANPeerService::getOrCreateConnection(const QString& peerUsername) {
         m_outgoingConnections.remove(peerUsername);
     }
 
+    // Reuse existing incoming connection from this peer
+    for (auto it = m_socketToUsername.constBegin(); it != m_socketToUsername.constEnd(); ++it) {
+        if (it.value() == peerUsername && it.key()->state() == QAbstractSocket::ConnectedState) {
+            return it.key();
+        }
+    }
+
     if (!m_peers.contains(peerUsername)) return nullptr;
 
     const PeerInfo& peer = m_peers[peerUsername];
     auto* ws = new QWebSocket(QString(), QWebSocketProtocol::VersionLatest, this);
 
     connect(ws, &QWebSocket::connected, [this, peerUsername, ws]() {
-        // Identify ourselves to the peer
+        // Identify ourselves to the peer (include wsPort so they can register us)
         QJsonObject identify;
         identify["type"] = "identify";
         identify["username"] = m_username;
+        identify["wsPort"] = static_cast<int>(m_wsListenPort);
+        identify["status"] = m_status;
+        identify["skypeNumber"] = m_skypeNumber;
         ws->sendTextMessage(QJsonDocument(identify).toJson(QJsonDocument::Compact));
 
         // Flush any queued messages
@@ -573,6 +629,11 @@ void LANPeerService::onPeerBinaryMessage(const QByteArray& data) {
         from = m_socketToUsername[socket];
     }
     if (from.isEmpty()) return;
+
+    // Update lastSeen for active peers
+    if (m_peers.contains(from)) {
+        m_peers[from].lastSeen = QDateTime::currentMSecsSinceEpoch();
+    }
 
     // Check magic header
     if (data[0] == 'A' && data[1] == 'U' && data[2] == 'D') {
