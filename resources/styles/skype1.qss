@@ -9,6 +9,7 @@
 /* Everything gets the system gray */
 QWidget {
     background-color: #D4D0C8;
+    color: #000000;
 }
 
 QMainWindow {
@@ -227,6 +228,7 @@ QLineEdit {
 /* Buttons - classic 3D raised look */
 QPushButton {
     background-color: #D4D0C8;
+    color: #000000;
     border: 2px outset #D4D0C8;
     padding: 2px 12px;
     min-height: 16px;

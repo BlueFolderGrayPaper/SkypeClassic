@@ -57,6 +57,7 @@ public:
     void requestContacts();
 
     bool isRunning() const;
+    void addManualPeer(const QHostAddress& address, quint16 wsPort);
 
 signals:
     void connected();

@@ -31,7 +31,7 @@ bool LANPeerService::start(const QString& username, quint16 discoveryPort) {
         settings.setValue("account/skypeNumber", m_skypeNumber);
     }
 
-    // Bind UDP socket for discovery
+    // Bind UDP socket for discovery (multicast for cross-subnet)
     m_discoverySocket = new QUdpSocket(this);
     if (!m_discoverySocket->bind(QHostAddress::AnyIPv4, m_discoveryPort,
                                   QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
@@ -41,6 +41,8 @@ bool LANPeerService::start(const QString& username, quint16 discoveryPort) {
         m_discoverySocket = nullptr;
         return false;
     }
+    // Join multicast group so discovery works across subnets
+    m_discoverySocket->joinMulticastGroup(QHostAddress("239.77.83.75"));
     connect(m_discoverySocket, &QUdpSocket::readyRead,
             this, &LANPeerService::onDiscoveryReadyRead);
 
@@ -123,6 +125,22 @@ bool LANPeerService::isRunning() const {
     return m_running;
 }
 
+void LANPeerService::addManualPeer(const QHostAddress& address, quint16 wsPort) {
+    // Send a direct discovery packet to a specific IP instead of relying on broadcast
+    if (!m_discoverySocket || !m_running) return;
+
+    QJsonObject packet;
+    packet["type"] = "discovery";
+    packet["username"] = m_username;
+    packet["status"] = m_status;
+    packet["wsPort"] = static_cast<int>(m_wsListenPort);
+    packet["skypeNumber"] = m_skypeNumber;
+
+    QByteArray data = QJsonDocument(packet).toJson(QJsonDocument::Compact);
+    m_discoverySocket->writeDatagram(data, address, m_discoveryPort);
+    qDebug() << "Sent manual discovery to" << address.toString() << ":" << wsPort;
+}
+
 // === UDP Discovery ===
 
 void LANPeerService::broadcastPresence() {
@@ -136,6 +154,8 @@ void LANPeerService::broadcastPresence() {
     packet["skypeNumber"] = m_skypeNumber;
 
     QByteArray data = QJsonDocument(packet).toJson(QJsonDocument::Compact);
+    // Send to both multicast (cross-subnet) and broadcast (same-subnet fallback)
+    m_discoverySocket->writeDatagram(data, QHostAddress("239.77.83.75"), m_discoveryPort);
     m_discoverySocket->writeDatagram(data, QHostAddress::Broadcast, m_discoveryPort);
 }
 
@@ -161,6 +181,14 @@ void LANPeerService::handleDiscoveryPacket(const QByteArray& data, const QHostAd
     // Ignore our own broadcasts
     if (username == m_username) return;
 
+    // Normalize IPv4-mapped IPv6 addresses (::ffff:x.x.x.x -> x.x.x.x)
+    QHostAddress normalizedSender = sender;
+    bool ok;
+    quint32 ipv4 = sender.toIPv4Address(&ok);
+    if (ok) {
+        normalizedSender = QHostAddress(ipv4);
+    }
+
     qint64 now = QDateTime::currentMSecsSinceEpoch();
     bool isNew = !m_peers.contains(username);
     bool statusChanged = false;
@@ -170,12 +198,12 @@ void LANPeerService::handleDiscoveryPacket(const QByteArray& data, const QHostAd
         info.username = username;
         info.status = status;
         info.skypeNumber = skypeNumber;
-        info.address = sender;
+        info.address = normalizedSender;
         info.wsPort = wsPort;
         info.lastSeen = now;
         m_peers.insert(username, info);
         statusChanged = true;
-        qDebug() << "Discovered peer:" << username << "at" << sender.toString() << ":" << wsPort;
+        qDebug() << "Discovered peer:" << username << "at" << normalizedSender.toString() << ":" << wsPort;
     } else {
         PeerInfo& info = m_peers[username];
         if (info.status != status) {
@@ -183,7 +211,7 @@ void LANPeerService::handleDiscoveryPacket(const QByteArray& data, const QHostAd
         }
         info.status = status;
         info.skypeNumber = skypeNumber;
-        info.address = sender;
+        info.address = normalizedSender;
         info.wsPort = wsPort;
         info.lastSeen = now;
     }
